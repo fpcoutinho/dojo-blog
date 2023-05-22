@@ -1,50 +1,29 @@
 <template>
-  <main>
+  <div class="home">
     <h1>Home</h1>
-    <input type="text" name="search" v-model="search" />
-    <p>search term - {{ search }}</p>
-    <div v-for="name in filteredNames" :key="name">{{ name }}</div>
-  </main>
+    <div v-if="error">{{ error }}</div>
+    <div v-if="posts.length">
+      <PostList :posts="posts" />
+    </div>
+    <div v-else>
+      <p>loading...</p>
+    </div>
+  </div>
 </template>
 
 <script>
-import { ref, computed, watch, watchEffect } from 'vue'
+import { onMounted, ref } from 'vue'
+// component imports
+import PostList from '../components/PostList.vue'
+import fetchPosts from '../composables/fetchPosts'
 
 export default {
   name: 'Home',
+  components: { PostList },
   setup() {
-    const search = ref('')
-    const names = ref([
-      'John',
-      'Jane',
-      'Joe',
-      'Jack',
-      'Jill',
-      'Jenny',
-      'Jesse',
-      'Jasmine',
-      'Jude',
-      'Julia',
-      'Julian',
-    ])
-
-    watchEffect(() => {
-      console.log('wf', search.value)
-    })
-
-    const filteredNames = computed(() => {
-      return names.value.filter((name) => {
-        return name.toLowerCase().includes(search.value.toLowerCase())
-      })
-    })
-
-    return {
-      names,
-      search,
-      filteredNames,
-    }
+    const { posts, error, load } = fetchPosts()
+    load()
+    return { posts, error }
   },
 }
 </script>
-
-<style></style>
